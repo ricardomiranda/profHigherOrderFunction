@@ -507,8 +507,8 @@ do2:    DO J = JMIN, JMAX
 
 !$OMP PARALLEL
 !$OMP DO
-do1 :   DO J = ObjHOF%JMIN, ObjHOF%JMAX
-do2 :   DO I = ObjHOF%IMIN, ObjHOF%IMAX
+do1 :   DO I = ObjHOF%IMIN, ObjHOF%IMAX
+do2 :   DO J = ObjHOF%JMIN, ObjHOF%JMAX
             arrayRes(I, J) = arrayA(I, J) * arrayB(I, J) +                     &
                                        (arrayA(I, J) + arrayB(I, J) *          &
                                        SQRT(arrayB(I, J))) / 2.2 +             &
