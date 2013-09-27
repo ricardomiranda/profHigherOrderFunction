@@ -27,7 +27,7 @@
 
 Module ModuleHOF
 
-    use ModuleFL
+!    use ModuleFL
 
     implicit none
 
@@ -479,6 +479,47 @@ do2:    DO J = JMIN, JMAX
         exampleFunction = A * B + (A + B * SQRT(B)) / 2.2 + A * A - B * B * A * 1.1 - 2.0 / (A*B) + 3*(sqrt(a)/sqrt(b))
 
     end function exampleFunction
+
+    !---------------------------------------------------------------------------
+
+    function CalcArraysOp(f2A,                                                 &
+                          arrayA,                                              &
+                          arrayB,                                              &
+                          IMIN, IMAX, ILB, IUB,                                &
+                          JMIN, JMAX, JLB, JUB)
+
+        !Arguments-------------------------------------------------------------
+        real(8), external   :: f2A
+        integer, intent(IN) :: IMIN, IMAX, ILB, IUB
+        integer, intent(IN) :: JMIN, JMAX, JLB, JUB
+        real(8), dimension(:, :), pointer :: CalcArraysOp
+
+        !Return------------------------------------------------------------------
+        real(8), dimension(:, :), pointer :: arrayA, arrayB
+
+        !Local-------------------------------------------------------------------
+        real(8), dimension(:, :), pointer :: arrayRes
+        integer :: I, J
+
+        !----------------------------------------------------------------------
+
+        allocate (arrayRes(ILB:IUB,                                             &
+                           JLB:JUB))
+        arrayRes =  NULL_REAL
+
+!$OMP PARALLEL
+!$OMP DO
+do1 :   DO I = IMIN, IMAX
+do2 :   DO J = JMIN, JMAX
+            arrayRes(I, J) = f2A(arrayA(I, J), arrayB(I, J))
+        ENDDO do2
+        ENDDO do1
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
+
+        CalcArraysOp => arrayRes
+
+    end function CalcArraysOp
 
     !--------------------------------------------------------------------------
 
