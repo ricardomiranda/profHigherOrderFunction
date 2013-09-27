@@ -27,8 +27,6 @@
 
 Module ModuleHOF
 
-!    use ModuleFL
-
     implicit none
 
     !Types---------------------------------------------------------------------
