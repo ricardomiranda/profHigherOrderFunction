@@ -74,6 +74,7 @@ Module ModuleHOF
 
     !Modifier
     public  :: CalcResult
+    private ::      CalcArraysHO
     private ::      exampleFunction
     public  :: CalcResultFO
 
@@ -448,7 +449,7 @@ do2:    DO J = JMIN, JMAX
 
         NewObjHOF          => AllocateReplica(ObjHOF)
 
-        NewObjHOF%arrayRes => CalcArraysOp   (exampleFunction,                 &
+        NewObjHOF%arrayRes => CalcArraysHO   (exampleFunction,                 &
                                               ObjHOF%arrayA,                   &
                                               ObjHOF%arrayB,                   &
                                               ObjHOF%IMIN, ObjHOF%IMAX,        &
@@ -480,7 +481,7 @@ do2:    DO J = JMIN, JMAX
 
     !---------------------------------------------------------------------------
 
-    function CalcArraysOp(f2A,                                                 &
+    function CalcArraysHO(f2A,                                                 &
                           arrayA,                                              &
                           arrayB,                                              &
                           IMIN, IMAX, ILB, IUB,                                &
@@ -490,7 +491,7 @@ do2:    DO J = JMIN, JMAX
         real(8), external   :: f2A
         integer, intent(IN) :: IMIN, IMAX, ILB, IUB
         integer, intent(IN) :: JMIN, JMAX, JLB, JUB
-        real(8), dimension(:, :), pointer :: CalcArraysOp
+        real(8), dimension(:, :), pointer :: CalcArraysHO
 
         !Return------------------------------------------------------------------
         real(8), dimension(:, :), pointer :: arrayA, arrayB
@@ -515,9 +516,9 @@ do2 :   DO J = JMIN, JMAX
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
 
-        CalcArraysOp => arrayRes
+        CalcArraysHO => arrayRes
 
-    end function CalcArraysOp
+    end function CalcArraysHO
 
     !--------------------------------------------------------------------------
 
