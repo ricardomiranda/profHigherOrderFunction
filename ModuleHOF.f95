@@ -77,6 +77,7 @@ Module ModuleHOF
     private ::      CalcArraysHO
     private ::      exampleFunction
     public  :: CalcResultFO
+    private ::      CalcResultFOCalc
 
     !Destructor
     public  :: KillHOF
@@ -481,17 +482,22 @@ do2:    DO J = JMIN, JMAX
 
     !---------------------------------------------------------------------------
 
-    function CalcArraysHO(f2A,                                                 &
-                          arrayA,                                              &
-                          arrayB,                                              &
-                          IMIN, IMAX, ILB, IUB,                                &
-                          JMIN, JMAX, JLB, JUB)
+    pure function CalcArraysHO(f2A,                                                 &
+                               arrayA,                                              &
+                               arrayB,                                              &
+                               IMIN, IMAX, ILB, IUB,                                &
+                               JMIN, JMAX, JLB, JUB)
 
         !Arguments-------------------------------------------------------------
-        real(8), external   :: f2A
         integer, intent(IN) :: IMIN, IMAX, ILB, IUB
         integer, intent(IN) :: JMIN, JMAX, JLB, JUB
         real(8), dimension(:, :), pointer :: CalcArraysHO
+
+        interface
+            pure real(8) function f2a (A, B)
+                real(8), intent(IN) :: A, B
+            end function
+        end interface
 
         !Return------------------------------------------------------------------
         real(8), dimension(:, :), pointer :: arrayA, arrayB
@@ -532,23 +538,47 @@ do2 :   DO J = JMIN, JMAX
 
         !Local-------------------------------------------------------------------
         type (T_Arrays), pointer :: NewObjHOF
-        real(8), dimension(:, :), pointer :: arrayA, arrayB, arrayRes
-        integer :: I, J
 
         !----------------------------------------------------------------------
 
         NewObjHOF          => AllocateReplica(ObjHOF)
-        arrayA             => ObjHOF%arrayA
-        arrayB             => ObjHOF%arrayB
 
-        allocate (arrayRes(ObjHOF%ILB:ObjHOF%IUB,                              &
-                           ObjHOF%JLB:ObjHOF%JUB))
+        NewObjHOF%arrayRes => CalcResultFOCalc(ObjHOF%arrayA, ObjHOF%arrayB,                        &
+                                               ObjHOF%ILB, ObjHOF%IUB, ObjHOF%IMIN, ObjHOF%IMAX,    &
+                                               ObjHOF%JLB, ObjHOF%JUB, ObjHOF%JMIN, ObjHOF%JMAX)
+
+        CalcResultFO       => NewObjHOF
+
+    end function CalcResultFO
+
+    !--------------------------------------------------------------------------
+
+    pure function CalcResultFOCalc(arrayA, arrayB,                                   &
+                                   ILB, IUB, IMIN, IMAX,                             &
+                                   JLB, JUB, JMIN, JMAX)
+
+        !Arguments-------------------------------------------------------------
+        real(8), dimension(:, :), pointer :: arrayA, arrayB
+        integer, intent(IN) :: ILB, IUB, IMIN, IMAX
+        integer, intent(IN) :: JLB, JUB, JMIN, JMAX
+
+        !Return------------------------------------------------------------------
+        real(8), dimension(:, :), pointer :: CalcResultFOCalc
+
+        !Local-------------------------------------------------------------------
+        real(8), dimension(:, :), pointer :: arrayRes
+        integer :: I, J
+
+        !----------------------------------------------------------------------
+
+        allocate (arrayRes(ILB:IUB,                                             &
+                           JLB:JUB))
 
 
 !$OMP PARALLEL
 !$OMP DO
-do1 :   DO I = ObjHOF%IMIN, ObjHOF%IMAX
-do2 :   DO J = ObjHOF%JMIN, ObjHOF%JMAX
+do1 :   DO I = IMIN, IMAX
+do2 :   DO J = JMIN, JMAX
             arrayRes(I, J) = arrayA(I, J) * arrayB(I, J) +                     &
                                        (arrayA(I, J) + arrayB(I, J) *          &
                                        SQRT(arrayB(I, J))) / 2.2 +             &
@@ -562,10 +592,10 @@ do2 :   DO J = ObjHOF%JMIN, ObjHOF%JMAX
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
 
-        NewObjHOF%arrayRes => arrayRes
-        CalcResultFO       => NewObjHOF
 
-    end function CalcResultFO
+        CalcResultFOCalc => arrayRes
+
+    end function CalcResultFOCalc
 
     !--------------------------------------------------------------------------
 

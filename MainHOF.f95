@@ -208,11 +208,13 @@ cd1 :   if (NbrSteps .LE. 0.0) then
         else   cd1
             NewObjHOF  => CalcResult  (ObjHOF)
             call HOFGarbageCollector (ObjHOF)
-            print*, NbrSteps, GetArrayRes(NewObjHOF)
+!            print*, NbrSteps, GetArrayRes(NewObjHOF)
 
             NewObjHOF2 => CalcResultFO(NewObjHOF)
             call HOFGarbageCollector (NewObjHOF)
-            print*, NbrSteps, GetArrayRes(NewObjHOF2)
+!            print*, NbrSteps, GetArrayRes(NewObjHOF2)
+
+            print*, NbrSteps
 
             call Loop (ObjMainHOF, NewObjHOF2, NbrSteps - ObjMainHOF%DT)
         end if cd1
