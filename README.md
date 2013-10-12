@@ -2,9 +2,8 @@ This program compares the performance of Higher-order functions and First-order 
  - ulimit -s unlimited
  - export PARALLEL=4
  - export OMP_NUM_THREADS=4
- - f95 -xopenmp=parallel -pg -o                     HOF ModuleHOF.f95 MainHOF.f95
- - f95 -O4               -pg -o -autopar -stackvar  HOF ModuleHOF.f95 MainHOF.f95
- - ./HOF
+ - f95 -xopenmp=parallel -pg -o HOF                     ModuleHOF.f95 MainHOF.f95
+ - f95 -O4               -pg -o HOF -autopar -stackvar  ModuleHOF.f95 MainHOF.f95
  - gprof HOF gmon.out>output.txt
  - cat output.txt 
 
